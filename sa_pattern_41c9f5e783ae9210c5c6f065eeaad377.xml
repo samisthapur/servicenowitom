@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<unload unload_date="2024-12-24 13:16:28">
+<sa_pattern action="INSERT_OR_UPDATE">
+<active>true</active>
+<ci_type>cmdb_ci_appl_generic</ci_type>
+<cpattern_type>2</cpattern_type>
+<description/>
+<directory>false</directory>
+<enforce_proc_classy>false</enforce_proc_classy>
+<invoke_per_account>false</invoke_per_account>
+<metadata_id>17852514c3f512d4007270bdc00131a9</metadata_id>
+<name>Get Current RAM Value</name>
+<ndl>library {
+	name = "Get Current RAM Value"
+	id = "17852514c3f512d4007270bdc00131a9"
+	description = "null"
+	step {
+		name = "Get Current Ram "
+		runcmd_to_var {
+			cmd = "wmic computersystem get totalphysicalmemory"
+			execution_mode = "DEFAULT"
+			var_names = table {
+				name = "new"
+				col_names = "ramwmic"
+			}
+			parsing_strategy = regex_parsing {regex = "(\\d+)"}
+			if_not_found_do = nop {}
+			cache_flag = 0
+		}
+	}
+	step {
+		name = "Convert Byte to MB"
+		set_attr {
+			"ramnew"
+			eval {"javascript: var rtrn='';
+rtrn = ((${new[1].ramwmic})/1048576);"}
+		}
+	}
+	step {
+		name = "Insert ram to cmdb_ci_win_server"
+		if {
+			condition = is_not_empty {get_attr {"ramnew"}}
+			on_true = set_attr {
+				"cmdb_ci_win_server[*].ram"
+				get_attr {"ramnew"}
+			}
+			on_false = nop {}
+		}
+	}
+}
+</ndl>
+<parent display_value=""/>
+<serverless>false</serverless>
+<source/>
+<sys_class_name>sa_pattern</sys_class_name>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2024-12-24 13:06:33</sys_created_on>
+<sys_domain>global</sys_domain>
+<sys_domain_path>/</sys_domain_path>
+<sys_id>41c9f5e783ae9210c5c6f065eeaad377</sys_id>
+<sys_mod_count>0</sys_mod_count>
+<sys_name>Get Current RAM Value</sys_name>
+<sys_overrides display_value=""/>
+<sys_package display_value="Global" source="global">global</sys_package>
+<sys_policy/>
+<sys_replace display_value=""/>
+<sys_scope display_value="Global">global</sys_scope>
+<sys_update_name>sa_pattern_41c9f5e783ae9210c5c6f065eeaad377</sys_update_name>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2024-12-24 13:06:33</sys_updated_on>
+<version/>
+</sa_pattern>
+</unload>
